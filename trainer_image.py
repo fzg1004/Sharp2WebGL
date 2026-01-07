@@ -17,7 +17,6 @@ class ImageModelTrainer:
     def __init__(self):
         # 从Config加载核心配置
         self.gs_repo_path = Config.GAUSSIAN_REPO_PATH  # 修正配置名（对应之前的GAUSSIAN_REPO_PATH）
-        self.train_script = Config.GAUSSIAN_TRAIN_SCRIPT  # 修正配置名
         self.conda_base = Config.CONDA_BASE  # conda根目录 /usr/local/anaconda3
         self.gs_env = Config.GAUSSIAN_ENV  # 虚拟环境名 gaussian-splatting
 

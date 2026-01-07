@@ -403,10 +403,6 @@
             </div>
             
             <input type="file" id="fileInput" class="file-input" accept=".jpg,.jpeg,.png" onchange="handleFileSelect(event)">
-            
-            <button class="btn-upload" id="btnClearFiles" onclick="clearAllFiles()" style="display: none; margin-top: 15px;">
-                清空文件
-            </button>
 
             <div class="selected-files" id="selectedFiles">
                 <h4>已选择文件</h4>
@@ -440,9 +436,14 @@
             </div>
             
             <div class="upload-actions">
-                <button class="btn-start" id="btnStartProcess" onclick="startProcessing()" disabled>
-                    开始3D重建
-                </button>
+                <div class="button-group">
+                    <button class="btn-start" id="btnStartProcess" onclick="startProcessing()" disabled>
+                        开始3D重建
+                    </button>
+                    <button class="btn-upload" id="btnClearFiles" onclick="clearAllFiles()" style="display: none;">
+                        清空文件
+                    </button>
+                </div>
             </div>
         </div>
         
