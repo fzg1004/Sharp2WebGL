@@ -2,7 +2,7 @@ import mimetypes
 from flask import Flask, logging
 from flask_cors import CORS
 import os
-
+import logging
 from config import Config
 
 # 配置MIME类型
