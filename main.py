@@ -1,5 +1,5 @@
 import mimetypes
-from flask import Flask
+from flask import Flask, logging
 from flask_cors import CORS
 import os
 
@@ -10,8 +10,22 @@ mimetypes.add_type('application/wasm', '.wasm')
 mimetypes.add_type('application/javascript', '.js')
 mimetypes.add_type('text/javascript', '.mjs')
 
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    handlers=[
+        logging.FileHandler(Config.LOG_DIR / 'app.log'),
+        logging.StreamHandler()
+    ]
+)
 
+logger = logging.getLogger(__name__)
+    
 def create_app():
+    
+    # 初始化配置
+    Config.init_dirs()    
+    
     """创建Flask应用工厂函数"""
     # 初始化Flask应用
     app = Flask(__name__, 

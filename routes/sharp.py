@@ -9,6 +9,8 @@ from werkzeug.utils import secure_filename
 from . import login_required
 from config import Config
 from trainer_image import ImageModelTrainer
+from convert import convert as ply_convert
+from pathlib import Path
 from utils.storage import StorageManager
 
 # 创建蓝图
@@ -109,7 +111,7 @@ def upload_image():
 
 
         # start background processing thread
-        t = threading.Thread(target=_run_sharp_task, args=(task_id, save_path, username, rel_folder), daemon=True)
+        t = threading.Thread(target=_run_sharp_task, args=(task_id, data_dir, save_path, username, rel_folder), daemon=True)
         t.start()
 
         return jsonify({'success': True, 'task_id': task_id})
@@ -118,26 +120,21 @@ def upload_image():
         return jsonify({'success': False, 'message': '服务器错误: ' + str(e)}), 500
 
 
-def _run_sharp_task(task_id, image_path, username, rel_folder):
+def _run_sharp_task(task_id, data_dir,image_path, username, rel_folder):
     
     """后台处理任务"""
     update_task_status(task_id, TaskStatus.PROCESSING, "正在处理文件...", 10)
     trainer = ImageModelTrainer()
-    sm = StorageManager(current_app.config.get('DATA_DIR', 'data'))
+    sm = StorageManager(data_dir)
     # image_path is the saved image file; sharp predict expects an input directory
     image_dir = os.path.dirname(image_path)
     # output directory should be the same image folder so generated ply sits alongside the image
-    data_dir = current_app.config.get('DATA_DIR', 'data')
     user_dir = os.path.join(data_dir, username)
     out_dir = os.path.join(user_dir, rel_folder)
     os.makedirs(out_dir, exist_ok=True)
 
     # call trainer with input directory and output directory
     training_result = trainer.train(image_dir, out_dir)
-    #if not training_result['success']:
-        #重建失败
-        #return
-
     if not training_result.get('success'):
         update_task_status(task_id, TaskStatus.FAILED, f"重建失败: {training_result.get('message')}", training_result.get('log', []))
         return
@@ -149,20 +146,40 @@ def _run_sharp_task(task_id, image_path, username, rel_folder):
     result_file = None
     try:
         for fname in os.listdir(out_dir):
-            if fname.lower().endswith(('.ply', '.ply.gz', '.splat')):
+            if fname.lower().endswith(('.ply', '.splat')):
                 result_file = fname
                 break
     except Exception:
         result_file = None
 
     if result_file:
-        # register model path relative to user dir: rel_folder/result_file
-        rel = os.path.join(rel_folder, result_file).replace('\\', '/')
+        # 1) attempt conversion using convert.py (if available)
         try:
-            sm.add_model(username, rel)
-        except Exception:
-            current_app.logger.exception('注册模型失败')
-        update_task_status(task_id, TaskStatus.COMPLETED, "完成", 100, result=rel)
+            teaser_full = os.path.join(out_dir, result_file)
+            # determine output filename: base + _convert + ext
+            base, ext = os.path.splitext(result_file)
+            converted_name = f"{base}_convert{ext}"
+            converted_full = os.path.join(out_dir, converted_name)
+
+            # call converter
+            ply_convert(Path(teaser_full), Path(Config.Target_File), Path(converted_full))
+            # register converted file
+            rel_converted = os.path.join(rel_folder, converted_name).replace('\\', '/')
+            try:
+                sm.add_model(username, rel_converted)
+            except Exception:
+                current_app.logger.exception('注册转换后模型失败')
+            # prefer returning converted file as task result
+            update_task_status(task_id, TaskStatus.COMPLETED, "完成（已转换）", 100, result=rel_converted)
+        except Exception as e:
+            # conversion failed; still register original result and finish
+            current_app.logger.exception('PLY 转换失败')
+            rel = os.path.join(rel_folder, result_file).replace('\\', '/')
+            try:
+                sm.add_model(username, rel)
+            except Exception:
+                current_app.logger.exception('注册模型失败')
+            update_task_status(task_id, TaskStatus.COMPLETED, f"完成（转换失败: {e}）", 100, result=rel)
     else:
         # 若没有找到直接的模型文件，仍返回输出目录供人工查看
         update_task_status(task_id, TaskStatus.COMPLETED, "完成（未找到明确的模型文件，输出在目录）", 100, result=os.path.basename(out_dir))

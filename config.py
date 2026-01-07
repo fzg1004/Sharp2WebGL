@@ -23,6 +23,7 @@ class Config:
     MAX_IMAGE__CONTENT_LENGTH = 30 * 1024 * 1024  # 500MB
     ALLOWED_IMAGE_EXTENSIONS = {'png', 'jpg', 'jpeg', 'jfif'}
     
+    Target_File = "data/train.ply"
     
     # ==================== Conda 环境基础配置 ====================
     # Conda根路径（可通过 `conda info --base` 命令获取）
