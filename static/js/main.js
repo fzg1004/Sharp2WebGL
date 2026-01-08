@@ -958,7 +958,8 @@ function bindGlobalEvents() {
         // 步骤2：停止事件冒泡（避免事件传递到下拉框等其他元素）
         //e.stopPropagation();
 
-        if (e.key === 'ArrowUp' || e.key === 'ArrowDown' || e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
+        if (e.key === 'ArrowUp' || e.key === 'ArrowDown' || e.key === 'ArrowLeft' || e.key === 'ArrowRight' || 
+            (e.key >= '0' && e.key <= '9') || /^[a-zA-Z]$/.test(e.key)) {
             // 检查当前焦点是否在目标下拉框上
             const modelFileSelect = document.getElementById('model-file');
             if (modelFileSelect && document.activeElement === modelFileSelect) {
