@@ -34,16 +34,33 @@ def delete_model(model_name):
         return jsonify({"status": "error", "message": "非法的文件路径"}), 400
 
     if os.path.isfile(model_path):
+        # If it's a file, remove its containing folder (so image folder + models)
+        folder = os.path.dirname(model_path)
         try:
-            os.remove(model_path)
-            # remove from xml index
-            try:
-                sm.remove_model(user_name, model_name)
-            except Exception:
-                current_app.logger.exception('从索引移除模型失败')
-            return jsonify({"status": "success", "message": "模型删除成功"})
+            if os.path.isdir(folder):
+                # remove the entire folder containing this file
+                shutil.rmtree(folder)
+                # remove any indexed models under this folder
+                try:
+                    models = sm.list_models(user_name)
+                    prefix = os.path.relpath(folder, user_dir).replace('\\', '/')
+                    if not prefix.endswith('/'):
+                        prefix = prefix + '/'
+                    for m in models:
+                        if m['relpath'].startswith(prefix):
+                            sm.remove_model(user_name, m['relpath'])
+                except Exception:
+                    current_app.logger.exception('从索引移除模型失败')
+                return jsonify({"status": "success", "message": "模型所在文件夹已删除"})
+            else:
+                # containing folder does not exist (file likely missing) — ensure xml record removed
+                try:
+                    sm.remove_model(user_name, model_name)
+                except Exception:
+                    current_app.logger.exception('从索引移除模型失败')
+                return jsonify({"status": "success", "message": "模型记录已移除（文件/文件夹不存在）"})
         except Exception as e:
-            current_app.logger.exception('删除文件失败')
+            current_app.logger.exception('删除文件/文件夹失败')
             return jsonify({"status": "error", "message": str(e)}), 500
     elif os.path.isdir(model_path):
         try:
