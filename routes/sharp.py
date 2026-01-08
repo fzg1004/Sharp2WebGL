@@ -168,15 +168,42 @@ def _run_sharp_task(task_id, data_dir,image_path, username, rel_folder):
             print(f"output file: {converted_full}")
             # call converter
             ply_convert(Path(teaser_full), Path(target_full), Path(converted_full))
-            # register converted file
+            
+            # remove intermediate teaser file
+            try:
+                os.remove(teaser_full)
+            except Exception:
+                current_app.logger.exception('删除中间文件失败')
+            
+            # 尝试将转换后的文件重命名为与输出文件夹同名（保留扩展名），避免覆盖已有文件
+            try:
+                folder_name = os.path.basename(out_dir.rstrip(os.sep))
+                new_name = f"{folder_name}{ext}"
+                new_full = os.path.join(out_dir, new_name)
+
+                if os.path.abspath(converted_full) != os.path.abspath(new_full):
+                    # 若目标名已存在，则在其后追加时间戳以避免覆盖
+                    if os.path.exists(new_full):
+                        ts2 = datetime.now().strftime('%Y%m%d_%H%M%S')
+                        new_name = f"{folder_name}_{ts2}{ext}"
+                        new_full = os.path.join(out_dir, new_name)
+                    os.replace(converted_full, new_full)
+                    converted_name = new_name
+                    converted_full = new_full
+            except Exception:
+                current_app.logger.exception('重命名转换文件失败')
+
+            # register converted file (use final converted_name)
             rel_converted = os.path.join(rel_folder, converted_name).replace('\\', '/')
             try:
                 sm.add_model(username, rel_converted)
             except Exception:
                 current_app.logger.exception('注册转换后模型失败')
+
             # prefer returning converted file as task result
             update_task_status(task_id, TaskStatus.COMPLETED, "完成（已转换）", 100, result=rel_converted)
-            os.remove(teaser_full)
+            
+            
         except Exception as e:
             # conversion failed; still register original result and finish
             current_app.logger.exception('PLY 转换失败')
