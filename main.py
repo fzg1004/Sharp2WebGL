@@ -4,6 +4,7 @@ from flask_cors import CORS
 import os
 import logging
 from config import Config
+from pathlib import Path
 
 # 配置MIME类型
 mimetypes.add_type('application/wasm', '.wasm')
@@ -71,7 +72,8 @@ def main():
     
     # 启动Flask服务
     app.run(host='0.0.0.0', port=Config.PORT, debug=Config.DEBUG)
-
+    
+    
 
 if __name__ == '__main__':
     main()

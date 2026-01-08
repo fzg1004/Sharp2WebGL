@@ -160,7 +160,11 @@ def _run_sharp_task(task_id, data_dir,image_path, username, rel_folder):
             base, ext = os.path.splitext(result_file)
             converted_name = f"{base}_convert{ext}"
             converted_full = os.path.join(out_dir, converted_name)
+            target_full = os.path.join(out_dir, Config.Target_File)
 
+            print(f"input file : {teaser_full}")
+            print(f"target file: {target_full}")
+            print(f"output file: {converted_full}")
             # call converter
             ply_convert(Path(teaser_full), Path(Config.Target_File), Path(converted_full))
             # register converted file
