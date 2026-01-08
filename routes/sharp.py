@@ -175,15 +175,12 @@ def _run_sharp_task(task_id, data_dir,image_path, username, rel_folder):
                 current_app.logger.exception('注册转换后模型失败')
             # prefer returning converted file as task result
             update_task_status(task_id, TaskStatus.COMPLETED, "完成（已转换）", 100, result=rel_converted)
+            os.remove(teaser_full)
         except Exception as e:
             # conversion failed; still register original result and finish
             current_app.logger.exception('PLY 转换失败')
             rel = os.path.join(rel_folder, result_file).replace('\\', '/')
-            try:
-                sm.add_model(username, rel)
-            except Exception:
-                current_app.logger.exception('注册模型失败')
-            update_task_status(task_id, TaskStatus.COMPLETED, f"完成（转换失败: {e}）", 100, result=rel)
+            update_task_status(task_id, TaskStatus.COMPLETED, f"完成（转换失败: {e}", 100, result=rel)
     else:
         # 若没有找到直接的模型文件，仍返回输出目录供人工查看
         update_task_status(task_id, TaskStatus.COMPLETED, "完成（未找到明确的模型文件，输出在目录）", 100, result=os.path.basename(out_dir))
