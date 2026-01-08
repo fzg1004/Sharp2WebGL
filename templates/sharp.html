@@ -3,382 +3,93 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>单图3D重建 - 3D高斯溅射系统</title>
+    <title>图像重建 - 3D高斯溅射系统</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
+        :root{
+            --bg: #F7FAFC;
+            --card: #FFFFFF;
+            --muted: #6B7280;
+            --accent: #2563EB; /* blue */
+            --accent-2: #10B981; /* green */
+            --danger: #EF4444;
+            --radius: 10px;
+            --max-width: 1100px;
+            --shadow: 0 6px 24px rgba(15,23,42,0.06);
         }
-        
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: #f5f7fa;
-            color: #333;
+
+        *{box-sizing:border-box;margin:0;padding:0}
+        html,body{height:100%}
+        body{
+            font-family: Inter, 'Segoe UI', Roboto, system-ui, -apple-system, 'Helvetica Neue', Arial;
+            background:var(--bg);
+            color:#111827;
+            -webkit-font-smoothing:antialiased;
+            -moz-osx-font-smoothing:grayscale;
         }
-        
-        .navbar {
-            background: white;
-            padding: 15px 30px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        
-        .logo {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        
-        .logo h1 {
-            font-size: 20px;
-            color: #333;
-        }
-        
-        .user-info {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-        }
-        
-        .user-info span {
-            color: #666;
-        }
-        
-        .btn-logout {
-            padding: 8px 16px;
-            background: #e74c3c;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            transition: background 0.3s;
-        }
-        
-        .btn-logout:hover {
-            background: #c0392b;
-        }
-        
-        .container {
-            max-width: 1200px;
-            margin: 30px auto;
-            padding: 0 20px;
-        }
-        
-        .upload-section {
-            background: white;
-            padding: 40px;
-            border-radius: 10px;
-            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
-            margin-bottom: 30px;
-        }
-        
-        .upload-section h2 {
-            margin-bottom: 10px;
-            color: #333;
-        }
-        
-        .upload-section > p {
-            color: #666;
-            margin-bottom: 30px;
-        }
-        
-        .upload-area {
-            border: 3px dashed #ddd;
-            border-radius: 10px;
-            padding: 60px 20px;
-            text-align: center;
-            transition: border-color 0.3s;
-            cursor: pointer;
-            margin-bottom: 20px;
-        }
-        
-        .upload-area:hover {
-            border-color: #48c774;
-        }
-        
-        .upload-area.dragover {
-            border-color: #48c774;
-            background: #f0fff4;
-        }
-        
-        .upload-icon {
-            font-size: 48px;
-            color: #48c774;
-            margin-bottom: 15px;
-        }
-        
-        .upload-text h3 {
-            margin-bottom: 10px;
-            color: #333;
-        }
-        
-        .upload-text p {
-            color: #666;
-            margin-bottom: 15px;
-        }
-        
-        .file-input {
-            display: none;
-        }
-        
-        .btn-upload {
-            padding: 12px 30px;
-            background: linear-gradient(135deg, #48c774 0%, #3ec46d 100%);
-            color: white;
-            border: none;
-            border-radius: 5px;
-            font-size: 16px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: transform 0.2s;
-        }
-        
-        .btn-upload:hover:not(:disabled) {
-            transform: translateY(-2px);
-        }
-        
-        .btn-upload:disabled {
-            background: #ccc;
-            cursor: not-allowed;
-            transform: none;
-        }
-        
-        .selected-files {
-            margin-top: 20px;
-            display: none;
-        }
-        
-        .selected-files.show {
-            display: block;
-        }
-        
-        .files-list {
-            max-height: 200px;
-            overflow-y: auto;
-            border: 1px solid #eee;
-            border-radius: 5px;
-            padding: 10px;
-        }
-        
-        .file-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 8px 10px;
-            border-bottom: 1px solid #f0f0f0;
-        }
-        
-        .file-item:last-child {
-            border-bottom: none;
-        }
-        
-        .file-info {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        
-        .file-preview {
-            width: 80px;
-            height: 80px;
-            object-fit: cover;
-            border-radius: 4px;
-            background: #f5f5f5;
-        }
-        
-        .file-name {
-            max-width: 300px;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-        }
-        
-        .file-size {
-            color: #888;
-            font-size: 12px;
-        }
-        
-        .remove-file {
-            color: #e74c3c;
-            background: none;
-            border: none;
-            cursor: pointer;
-            font-size: 14px;
-        }
-        
-        .upload-actions {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-top: 25px;
-            flex-wrap: wrap;
-            gap: 15px;
-        }
-        
-        .button-group {
-            display: flex;
-            gap: 15px;
-            flex-wrap: wrap;
-        }
-        
-        .btn-start {
-            padding: 12px 30px;
-            background: linear-gradient(135deg, #3273dc 0%, #2366d1 100%);
-            color: white;
-            border: none;
-            border-radius: 5px;
-            font-size: 16px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: transform 0.2s;
-        }
-        
-        .btn-start:hover:not(:disabled) {
-            transform: translateY(-2px);
-        }
-        
-        .btn-start:disabled {
-            background: #ccc;
-            cursor: not-allowed;
-            transform: none;
-        }
-        
-        .btn-viewer {
-            padding: 12px 30px;
-            background: linear-gradient(135deg, #ff7b00 0%, #ff6a00 100%);
-            color: white;
-            border: none;
-            border-radius: 5px;
-            font-size: 16px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: transform 0.2s;
-        }
-        
-        .btn-viewer:hover:not(:disabled) {
-            transform: translateY(-2px);
-            background: linear-gradient(135deg, #ff6a00 0%, #ff5900 100%);
-        }
-        
-        .btn-viewer:disabled {
-            background: #ccc;
-            cursor: not-allowed;
-            transform: none;
-        }
-        
-        .btn-viewer.show {
-            display: inline-block;
-        }
-        
-        .progress-section {
-            margin-top: 30px;
-            display: none;
-        }
-        
-        .progress-section.show {
-            display: block;
-        }
-        
-        .progress-title {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 10px;
-        }
-        
-        .progress-bar {
-            height: 20px;
-            background: #e0e0e0;
-            border-radius: 10px;
-            overflow: hidden;
-            margin-bottom: 10px;
-        }
-        
-        .progress-fill {
-            height: 100%;
-            background: linear-gradient(90deg, #48c774 0%, #3273dc 100%);
-            width: 0%;
-            transition: width 0.3s;
-            border-radius: 10px;
-        }
-        
-        .progress-message {
-            color: #666;
-            font-size: 14px;
-            margin-top: 5px;
-        }
-        
-        .status-log {
-            margin-top: 20px;
-            padding: 15px;
-            background: #f8f9fa;
-            border-radius: 5px;
-            max-height: 200px;
-            overflow-y: auto;
-            font-size: 14px;
-        }
-        
-        .status-item {
-            padding: 5px 0;
-            border-bottom: 1px solid #eee;
-        }
-        
-        .status-item:last-child {
-            border-bottom: none;
-        }
-        
-        .upload-stats {
-            margin-top: 20px;
-            display: flex;
-            gap: 20px;
-            flex-wrap: wrap;
-        }
-        
-        .stat-item {
-            background: #f8f9fa;
-            padding: 15px;
-            border-radius: 5px;
-            min-width: 150px;
-        }
-        
-        .stat-label {
-            color: #666;
-            font-size: 14px;
-            margin-bottom: 5px;
-        }
-        
-        .stat-value {
-            font-size: 18px;
-            font-weight: bold;
-            color: #333;
-        }
-        
-        .models-section {
-            background: white;
-            padding: 30px;
-            border-radius: 10px;
-            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
-            text-align: center;
-        }
-        
-        .models-section h2 {
-            margin-bottom: 20px;
-            color: #333;
-        }
-        
-        .no-models {
-            text-align: center;
-            padding: 40px 20px;
-            color: #888;
-        }
+
+        .navbar{background:var(--card);padding:14px 24px;border-bottom:1px solid rgba(15,23,42,0.04);display:flex;align-items:center;justify-content:space-between;box-shadow:var(--shadow)}
+        .logo h1{font-size:18px;color:#0f172a}
+        .user-info{display:flex;gap:12px;align-items:center;color:var(--muted)}
+        .btn-logout{background:transparent;border:1px solid rgba(15,23,42,0.06);padding:8px 12px;border-radius:8px;cursor:pointer;color:var(--muted)}
+
+        .container{max-width:var(--max-width);margin:28px auto;padding:0 20px}
+
+        .upload-section{background:var(--card);padding:28px;border-radius:var(--radius);box-shadow:var(--shadow);margin-bottom:22px}
+        .upload-section h2{font-size:20px;margin-bottom:6px}
+        .upload-section p{color:var(--muted);margin-bottom:18px}
+
+        .upload-area{border:2px dashed rgba(15,23,42,0.06);border-radius:8px;padding:36px 18px;text-align:center;cursor:pointer;background:linear-gradient(180deg, rgba(255,255,255,0.6), transparent)}
+        .upload-area.dragover{border-color:var(--accent-2);background:rgba(16,185,129,0.03)}
+
+        .upload-icon{width:56px;height:56px;margin:0 auto 12px;display:flex;align-items:center;justify-content:center;border-radius:12px;background:linear-gradient(180deg,rgba(37,99,235,0.1),rgba(16,185,129,0.06));color:var(--accent)}
+        .upload-text h3{font-size:16px;margin-bottom:6px}
+        .upload-text p{color:var(--muted);font-size:13px}
+
+        .file-input{display:none}
+
+        .btn-upload{padding:10px 18px;background:var(--accent);color:white;border-radius:8px;border:none;cursor:pointer;font-weight:600}
+        .btn-upload[disabled]{opacity:.5;cursor:not-allowed}
+
+        .selected-files{margin-top:16px;display:none}
+        .selected-files.show{display:block}
+        .files-list{max-height:180px;overflow:auto;border-radius:8px;border:1px solid rgba(15,23,42,0.04);padding:8px;background:linear-gradient(180deg, #fff, #fbfdff)}
+        .file-item{display:flex;gap:12px;align-items:center;padding:8px;border-radius:6px}
+        .file-info{display:flex;align-items:center;gap:12px;flex:1}
+        .file-preview{width:72px;height:72px;border-radius:6px;object-fit:cover;background:#f3f4f6;flex:0 0 72px}
+        .file-name{font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+        .file-size{display:none}
+
+        .upload-actions{display:flex;justify-content:flex-end;align-items:center;margin-top:18px;gap:12px}
+        .button-group{display:flex;gap:10px}
+        .btn-start{background:linear-gradient(90deg,var(--accent),#1E40AF);color:#fff;padding:10px 18px;border-radius:8px;border:none;cursor:pointer;font-weight:600}
+        .btn-clear{background:transparent;border:1px solid rgba(15,23,42,0.06);padding:10px 14px;border-radius:8px;cursor:pointer}
+
+        /* Upload stats: place items inline with compact values */
+        .upload-stats{margin-top:12px;display:flex;gap:28px;align-items:center;flex-wrap:wrap}
+        .upload-stats .stat-item{display:flex;align-items:center;gap:8px;padding:4px 6px;border-radius:6px}
+        .upload-stats .stat-label{color:var(--muted);font-size:13px;white-space:nowrap}
+        .upload-stats .stat-value{font-size:15px;font-weight:700;color:#0f172a}
+        /* make these two values slightly smaller */
+        #statSize,#statResolution{font-size:13px;font-weight:600;color:#111827}
+
+        .progress-section{margin-top:20px}
+        .progress-bar{height:12px;background:rgba(15,23,42,0.06);border-radius:999px;overflow:hidden}
+        .progress-fill{height:100%;background:linear-gradient(90deg,var(--accent-2),var(--accent));width:0%;transition:width .3s}
+
+        .status-log{margin-top:12px;padding:12px;border-radius:8px;background:#fbfdff;border:1px solid rgba(15,23,42,0.03);max-height:160px;overflow:auto}
+
+        .models-section{background:var(--card);padding:18px;border-radius:var(--radius);box-shadow:var(--shadow);display:flex;justify-content:space-between;align-items:center}
+        .models-section h2{margin:0}
+        .btn-viewer{background:linear-gradient(90deg,#ff6a00,#ff3d00);color:#fff;padding:8px 14px;border-radius:8px;border:none;cursor:pointer;box-shadow:0 6px 18px rgba(255,95,0,0.18)}
+        .btn-manager{background:transparent;border:1px solid rgba(15,23,42,0.06);padding:8px 12px;border-radius:8px}
+
+        @media (max-width:720px){.upload-area{padding:22px}.container{padding:0 12px}.upload-actions{flex-direction:column;align-items:stretch}}
     </style>
 </head>
 <body>
     <div class="navbar">
         <div class="logo">
-            <h1>单图3D重建系统</h1>
+            <h1>图像3D重建</h1>
         </div>
         <div class="user-info">
             <span>欢迎, {{ username }}</span>
@@ -389,7 +100,7 @@
     <div class="container">
         <div class="upload-section">
             <h2>上传单张图像</h2>
-            <p>上传1张图像，系统将通过AI算法进行3D重建</p>
+            <p>上传1张图像，系统将通过算法进行3D重建</p>
             
             <div class="upload-area" id="uploadArea">
                 <div class="upload-icon">🖼️</div>
@@ -449,7 +160,7 @@
         
         <div class="models-section">
             <button class="btn-viewer" id="btnViewer" onclick="openViewer()">
-                查看3D模型
+                查看我的模型
             </button>
             <button class="btn-upload" id="btnManager" onclick="ManagerViewer()">
                 管理我的模型
@@ -576,9 +287,8 @@
                 fileItem.innerHTML = `
                     <div class="file-info">
                         ${previewSrc ? `<img class="file-preview" src="${previewSrc}" alt="预览">` : '<div class="file-preview"></div>'}
-                        <div>
+                        <div class="file-meta">
                             <div class="file-name" title="${file.name}">${file.name}</div>
-                            <div class="file-size">${formatFileSize(file.size)}</div>
                         </div>
                     </div>
                     <button class="remove-file" onclick="removeFile(${index})">移除</button>

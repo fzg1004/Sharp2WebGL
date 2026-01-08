@@ -9,8 +9,8 @@
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background:#f5f7fa; color:#333; }
         .navbar { background:white; padding:15px 30px; box-shadow:0 2px 10px rgba(0,0,0,0.1); display:flex; justify-content:space-between; align-items:center; }
         .logo h1 { font-size:20px; color:#333; }
-        .user-info { display:flex; gap:15px; align-items:center; }
-        .btn-logout { padding:8px 16px; background:#e74c3c; color:#fff; border:none; border-radius:5px; cursor:pointer; }
+        .user-info{display:flex;gap:12px;align-items:center;color:var(--muted)}
+        .btn-logout{background:transparent;border:1px solid rgba(15,23,42,0.06);padding:8px 12px;border-radius:8px;cursor:pointer;color:var(--muted)}
         .container { max-width:1100px; margin:30px auto; padding:0 20px; }
         .panel { background:white; padding:30px; border-radius:10px; box-shadow:0 5px 20px rgba(0,0,0,0.06); }
         h2 { margin-bottom:16px; }
@@ -18,13 +18,13 @@
         .model-item { display:flex; justify-content:space-between; align-items:center; padding:12px; border-bottom:1px solid #f0f0f0; }
         .model-item a { color:#2366d1; text-decoration:none; font-weight:600; }
         .model-actions { display:flex; gap:8px; }
-        .btn-view { padding:8px 12px; background:linear-gradient(135deg,#ff7b00,#ff6a00); color:#fff; border:none; border-radius:6px; cursor:pointer; }
-        .btn-rename { padding:8px 12px; background:#fff; color:#333; border:1px solid #ddd; border-radius:6px; cursor:pointer; }
+        .btn-view { padding:8px 12px; background:linear-gradient(135deg,#ff7b00,#ff6a00); color:#fff; border:none; border-radius:6px; cursor:pointer; display: none !important; }
+        .btn-rename { padding:8px 12px; background:linear-gradient(90deg,#ff6a00,#ff3d00); color:#fff; border:none; border-radius:6px; cursor:pointer; box-shadow:0 6px 18px rgba(255,95,0,0.18); }
         .name-input { padding:6px 8px; font-size:14px; border:1px solid #ddd; border-radius:4px; width:320px; }
         .btn-save, .btn-cancel { padding:6px 10px; border-radius:6px; border:1px solid #ddd; background:#fff; cursor:pointer; }
         .btn-save { background:linear-gradient(135deg,#48c774,#3ec46d); color:#fff; border:none; }
         .btn-cancel { margin-left:6px; }
-        .btn-delete { padding:8px 12px; background:#eee; color:#c0392b; border:none; border-radius:6px; cursor:pointer; }
+        .btn-delete{ padding:8px 12px; background:#fff; color:#333; border:1px solid #ddd; border-radius:6px; cursor:pointer; }
         .no-models { text-align:center; color:#888; padding:40px 0; }
     </style>
 </head>
