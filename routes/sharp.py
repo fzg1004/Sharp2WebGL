@@ -123,7 +123,7 @@ def upload_image():
 def _run_sharp_task(task_id, data_dir,image_path, username, rel_folder):
     
     """后台处理任务"""
-    update_task_status(task_id, TaskStatus.PROCESSING, "正在处理文件...", 10)
+    update_task_status(task_id, TaskStatus.PROCESSING, "正在重建中...", 10)
     trainer = ImageModelTrainer()
     sm = StorageManager(data_dir)
     # image_path is the saved image file; sharp predict expects an input directory
@@ -139,7 +139,7 @@ def _run_sharp_task(task_id, data_dir,image_path, username, rel_folder):
         update_task_status(task_id, TaskStatus.FAILED, f"重建失败: {training_result.get('message')}", training_result.get('log', []))
         return
 
-    update_task_status(task_id, TaskStatus.TRAINING, "重建完成，查找输出...", 80)
+    update_task_status(task_id, TaskStatus.TRAINING, "重建完成，正在处理...", 80)
     out_dir = training_result.get('output_dir')
 
     # 查找输出目录中的 ply / ply.gz / splat 文件
@@ -158,15 +158,16 @@ def _run_sharp_task(task_id, data_dir,image_path, username, rel_folder):
             teaser_full = os.path.join(out_dir, result_file)
             # determine output filename: base + _convert + ext
             base, ext = os.path.splitext(result_file)
-            converted_name = f"{base}_convert{ext}"
+            timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+            converted_name = f"{base}_{timestamp}{ext}"
             converted_full = os.path.join(out_dir, converted_name)
-            target_full = os.path.join(out_dir, Config.Target_File)
+            target_full = os.path.join(data_dir, Config.Target_File)
 
             print(f"input file : {teaser_full}")
             print(f"target file: {target_full}")
             print(f"output file: {converted_full}")
             # call converter
-            ply_convert(Path(teaser_full), Path(Config.Target_File), Path(converted_full))
+            ply_convert(Path(teaser_full), Path(target_full), Path(converted_full))
             # register converted file
             rel_converted = os.path.join(rel_folder, converted_name).replace('\\', '/')
             try:
