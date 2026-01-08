@@ -1212,9 +1212,9 @@ function frame(now) {
         }
     }
     if (activeKeys.includes("ArrowLeft"))
-        inv = translate4(inv, -0.03, 0, 0);
-    if (activeKeys.includes("ArrowRight"))
         inv = translate4(inv, 0.03, 0, 0);
+    if (activeKeys.includes("ArrowRight"))
+        inv = translate4(inv, -0.03, 0, 0);
     if (activeKeys.includes("KeyA")) inv = rotate4(inv, 0.01, 0, 1, 0);
     if (activeKeys.includes("KeyD")) inv = rotate4(inv, -0.01, 0, 1, 0);
     if (activeKeys.includes("KeyQ")) inv = rotate4(inv, 0.01, 0, 0, 1);
