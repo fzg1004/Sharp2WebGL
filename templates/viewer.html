@@ -356,9 +356,74 @@ other
 				});
             }
 
+			// 专门阻止下拉框键盘事件的函数（但保留鼠标交互）
+			function disableSelectKeyboardEvents() {
+    			const modelFileSelect = document.getElementById('model-file');
+    			const canvas = document.getElementById('canvas');
+    
+    			if (!modelFileSelect || !canvas) {
+        			console.warn('找不到下拉框或canvas元素');
+        			return;
+    			}
+    
+    			// 让canvas可聚焦（如果还没设置）
+    			if (canvas.tabIndex === undefined || canvas.tabIndex < 0) {
+        			canvas.tabIndex = 0;
+    			}
+    
+    			// 1. 只阻止键盘导航相关事件，不阻止input事件
+    			const blockKeyboardNavigation = function(e) {
+        			// 只阻止方向键、空格、回车等导航键
+        			const navigationKeys = [
+            			'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight',
+            			' ', 'Spacebar', 'Enter', 'Escape',
+            			'PageUp', 'PageDown', 'Home', 'End',
+            			'Tab'  // 也阻止Tab键
+        			];
+        
+        			// 检查是否是字母或数字键（这些可能用于快速选择选项）
+        			const isLetterOrNumber = /^[a-zA-Z0-9]$/.test(e.key);
+        
+        			if (navigationKeys.includes(e.key) || isLetterOrNumber) {
+            			e.preventDefault();
+            			e.stopPropagation();
+            			e.stopImmediatePropagation();
+            
+            			// 转移焦点到canvas
+            			canvas.focus();
+            
+            			return false;
+        			}
+    			};
+    
+    			// 2. 阻止focus事件（但允许点击）
+    			modelFileSelect.addEventListener('focus', function(e) {
+        			// 只有当是通过键盘Tab键聚焦时才阻止
+        			if (e.detail === 0) { // detail为0表示通过键盘聚焦
+            			e.preventDefault();
+            			setTimeout(() => canvas.focus(), 0);
+        			}
+        			// 如果detail不为0，表示通过鼠标点击，允许聚焦
+    			}, true);
+    
+    			// 3. 只添加键盘导航事件监听
+    			const keyboardEvents = ['keydown', 'keyup', 'keypress'];
+    			keyboardEvents.forEach(eventType => {
+        			modelFileSelect.addEventListener(eventType, blockKeyboardNavigation, {
+            			capture: true,
+            			passive: false
+        			});
+    			});
+    
+    			// 4. 设置tabindex阻止Tab键导航
+    			modelFileSelect.tabIndex = -1;
+    			console.log('下拉框键盘导航已禁用，鼠标选择保持正常');
+			}
+
             // 页面加载完成后初始化
             window.addEventListener('load', () => {
                 initModelSelector();
+				disableSelectKeyboardEvents
             });
         </script>
 	</body>

@@ -898,47 +898,6 @@ function resize() {
         innerHeight,
     );
 
-    //modify 可以根据以下代码指定canvas渲染大小
-    // 计算80%区域的视口
-    /*
-    const viewportWidth = window.innerWidth;
-    const viewportHeight = window.innerHeight;
-    
-    // 80%区域的计算
-    const marginX = viewportWidth * 0.1;  // 10%边距
-    const marginY = viewportHeight * 0.1; // 10%边距
-    const centerWidth = viewportWidth * 0.8;
-    const centerHeight = viewportHeight * 0.8;
-    
-    // 设置canvas尺寸
-    canvas.width = Math.round(viewportWidth / downsample);
-    canvas.height = Math.round(viewportHeight / downsample);
-    
-    // 设置视口（WebGL坐标系：左下角为原点）
-    const viewportX = (marginX / viewportWidth) * canvas.width;
-    const viewportY = (marginY / viewportHeight) * canvas.height;
-    const viewportW = (centerWidth / viewportWidth) * canvas.width;
-    const viewportH = (centerHeight / viewportHeight) * canvas.height;
-    
-    gl.viewport(viewportX, viewportY, viewportW, viewportH);
-    
-    // 清除整个canvas的背景
-    gl.clearColor(0.1, 0.1, 0.1, 1.0); // 设置边距区域颜色
-    gl.clear(gl.COLOR_BUFFER_BIT);
-    
-    // 恢复渲染区域背景色为透明或黑色
-    gl.clearColor(0, 0, 0, 0);
-    gl.enable(gl.SCISSOR_TEST);
-    gl.scissor(viewportX, viewportY, viewportW, viewportH);
-    gl.clear(gl.COLOR_BUFFER_BIT);
-    gl.disable(gl.SCISSOR_TEST);
-    
-    // 更新uniform
-    gl.uniform2fv(u_viewport, new Float32Array([centerWidth, centerHeight]));
-    gl.uniformMatrix4fv(u_projection, false, projectionMatrix);
-    */
-
-    // 原始代码
     gl.uniform2fv(u_viewport, new Float32Array([innerWidth, innerHeight]));
 
     gl.canvas.width = Math.round(innerWidth / downsample);

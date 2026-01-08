@@ -139,7 +139,7 @@ def _run_sharp_task(task_id, data_dir,image_path, username, rel_folder):
         update_task_status(task_id, TaskStatus.FAILED, f"重建失败: {training_result.get('message')}", training_result.get('log', []))
         return
 
-    update_task_status(task_id, TaskStatus.TRAINING, "重建完成，正在处理...", 80)
+    update_task_status(task_id, TaskStatus.TRAINING, "重建完成，正在处理数据...", 80)
     out_dir = training_result.get('output_dir')
 
     # 查找输出目录中的 ply / ply.gz / splat 文件
@@ -201,7 +201,7 @@ def _run_sharp_task(task_id, data_dir,image_path, username, rel_folder):
                 current_app.logger.exception('注册转换后模型失败')
 
             # prefer returning converted file as task result
-            update_task_status(task_id, TaskStatus.COMPLETED, "完成（已转换）", 100, result=rel_converted)
+            update_task_status(task_id, TaskStatus.COMPLETED, "已完成，查看模型请点击\"查看我的模型\"按钮", 100, result=rel_converted)
             
             
         except Exception as e:
