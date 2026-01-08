@@ -70,16 +70,9 @@ def main():
     print(f"模板文件目录：{app.config['TEMPLATES_DIR']}")
     print("=" * 50)
     
-    
-    from convert import parse_ply_header
-    
-    teaser_header = parse_ply_header(Path("E:\\3D\\Sharp2WebGL\\data\\demo_user\\train.ply"));
-    print(teaser_header.vertex_properties)
-    
-    print("end")
-    
+
     # 启动Flask服务
-    #app.run(host='0.0.0.0', port=Config.PORT, debug=Config.DEBUG)
+    app.run(host='0.0.0.0', port=Config.PORT, debug=Config.DEBUG)
     
     
 
