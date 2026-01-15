@@ -161,13 +161,15 @@ def _run_sharp_task(task_id, data_dir,image_path, username, rel_folder):
             timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
             converted_name = f"{base}_{timestamp}{ext}"
             converted_full = os.path.join(out_dir, converted_name)
-            target_full = os.path.join(data_dir, Config.Target_File)
+            #target_full = os.path.join(data_dir, Config.Target_File)
 
             print(f"input file : {teaser_full}")
-            print(f"target file: {target_full}")
+            #print(f"target file: {target_full}")
             print(f"output file: {converted_full}")
             # call converter
-            ply_convert(Path(teaser_full), Path(target_full), Path(converted_full))
+            #ply_convert(Path(teaser_full), Path(target_full), Path(converted_full))
+            ply_convert(Path(teaser_full),  Path(converted_full))
+            
             
             # remove intermediate teaser file
             try:
